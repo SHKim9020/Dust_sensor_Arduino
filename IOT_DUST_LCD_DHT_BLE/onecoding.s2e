@@ -1,0 +1,335 @@
+{	"extensionName": "IOT_DUST_LCD_DHT_BLE_2021",
+	"description": "Onecoding library using neopixel,DHT,bluetooth,I2C_LCD,미세먼지 측정센서(GP2Y1023),RGB LED ",
+	"version": "1.1",
+	"author": "onecoding(pcs0879@nate.com)",
+	"homepage": "https://github.com/SHKim9020/SMART_LAMP",
+	"sort":0,
+	"javascriptURL":"js/onecoding.js",
+    "firmware":"1.0",
+    "extensionPort":0,
+    "tags" : "Onecoding, NeoPixel, DHT, bluetooth,LCD,dust,irremote,RFID,RTC",
+	"blockSpecs": [
+		[
+			"w",
+			"Set: LCD at %d.lcdaddr has %d.lines lines and %d.cols characters per line",
+			"LCDI2CInit",
+			"0x27",
+			2,
+			16,
+			{
+				"setup":"lcd_I2C_{0}.init();\n lcd_I2C_{0}.backlight();\n",
+				"inc":"#include \"LiquidCrystal_I2C.h\"\n",
+				"def":"LiquidCrystal_I2C lcd_I2C_{0}({0}, {2}, {1});\n",
+				"work":"",
+				"loop":""
+			}
+		],
+		[
+			"w",
+			"LCD at %d.lcdaddr Line %d.line Col %d.col Show %s ",
+			"LCDI2CPrint",
+			"0x27",
+			1,
+			1,
+			"Hello World!",
+			{
+				"setup":"",
+				"inc":"#include \"LiquidCrystal_I2C.h\"\n",
+				"def":"LiquidCrystal_I2C lcd_I2C_{0}({0}, 16, 2);\n",
+				"work":"lcd_I2C_{0}.setCursor( ({2}) - 1, ({1}) - 1 );\nlcd_I2C_{0}.print( {3} );\n",
+				"loop":""
+			}
+		],
+		[
+			"w",
+			"Clear LCD at %d.lcdaddr and Line %d.line Col %d.col Show %s ",
+			"LCDI2CClearandPrint",
+			"0x27",
+			1,
+			1,
+			"Hello World!",
+			{
+				"setup":"",
+				"inc":"#include \"LiquidCrystal_I2C.h\"\n",
+				"def":"LiquidCrystal_I2C lcd_I2C_{0}({0}, 16, 2);\n",
+				"work":"lcd_I2C_{0}.clear();\nlcd_I2C_{0}.setCursor( ({2}) - 1, ({1}) - 1 );\nlcd_I2C_{0}.print( {3} );\n",
+				"loop":""
+			}
+		],
+		[
+			"w",
+			"Turn %d.switch the backlight of LCD at %d.lcdaddr",
+			"LCDI2CBacklight",
+			"ON",
+			"0x27",
+			{
+				"setup":"",
+				"inc":"#include \"LiquidCrystal_I2C.h\"\n",
+				"def":"LiquidCrystal_I2C lcd_I2C_{1}({1}, 16, 2);\n",
+				"work":"lcd_I2C_{1}.setBacklight( {0} );\n",
+				"loop":""
+			}
+		],
+		[
+			"w",
+			"Clear LCD at %d.lcdaddr",
+			"LCDI2CClear",
+			"0x27",
+			{
+				"setup":"",
+				"inc":"#include \"LiquidCrystal_I2C.h\"\n",
+				"def":"LiquidCrystal_I2C lcd_I2C_{0}({0}, 16, 2);\n",
+				"work":"lcd_I2C_{0}.clear();\n",
+				"loop":""
+			}
+		],
+		[
+			"w",
+			"LCD at %d.lcdaddr %d.indicator",
+			"LCDI2CIndicator",
+			"0x27",
+			"show cursor",
+			{
+				"setup":"",
+				"inc":"#include \"LiquidCrystal_I2C.h\"\n",
+				"def":"LiquidCrystal_I2C lcd_I2C_{0}({0}, 16, 2);\nvoid setLCDindicator(LiquidCrystal_I2C *pLCD, int indstate){\nif (indstate==1) pLCD->cursor();\nelse if (indstate==2) pLCD->noCursor();\nelse if (indstate==3) pLCD->blink();\nelse if (indstate==4) pLCD->noBlink();\n}",
+				"work":"setLCDindicator(&lcd_I2C_{0}, {1} );\n",
+				"loop":""
+			}
+		],
+		[
+			"r",
+			"read dust sensor ledPower %d.portsel measure %d.portsel",
+			"getDustSensor",
+			"2",
+			"A0",
+			{
+				"setup":"pinMode({0},OUTPUT); \n",
+				"inc":"",
+				"def":"int measurePin = {1};\nint ledPower = {0};\nint samplingTime = 280;\nint deltaTime = 40;\nint sleepTime = 9680;\nfloat voMeasured = 0;\nfloat calcVoltage = 0;\nfloat dustDensity = 0;\nfloat readDust(){\ndigitalWrite(ledPower,LOW);\ndelayMicroseconds(samplingTime);\nvoMeasured = analogRead(measurePin);\ndelayMicroseconds(deltaTime);\ndigitalWrite(ledPower,HIGH);\ndelayMicroseconds(sleepTime);\ncalcVoltage = voMeasured * (5.0 / 1024.0);\n\tdustDensity=(0.03 * calcVoltage)*1000;\nreturn(dustDensity);}\n}",
+				"work":"readDust()",
+				"loop":""
+			}
+		],
+		[
+			"w",
+			"set pwm pin %d.portsel output %d.pwmvalue / pin %d.portsel output %d.pwmvalue / pin %d.portsel output %d.pwmvalue",
+			"runPwm",
+			"9",
+			0,
+			"10",
+			0,
+			"11",
+			0,			
+			{
+				"setup":"pinMode({0},OUTPUT);\npinMode({2},OUTPUT);\npinMode({4},OUTPUT);\n",
+				"inc":"",
+				"def":"",
+				"work":"analogWrite({0},{1});\nanalogWrite({2},{3});\nanalogWrite({4},{5});\n",
+				"loop":""
+			}
+		],
+["w", "블루투스 핀 설정 송신 %n 수신 %n","bluetooth_init", "2", "3",
+		{"encode":"{d0}{d1}","setup":"BlueTooth.begin(9600);\n","inc":"SoftwareSerial BlueTooth({0},{1});\n","def":"","work":"","loop":""}],
+		
+		[
+			"w", 
+			"변수: blue_input=BlueTooth.read()",
+			"변수: blue_input", 
+			"",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"char blue_input = 0;\n",
+				"work":"blue_input=BlueTooth.read();\n",
+				"loop":""
+			}
+		],
+		
+		[
+			"w", 
+			"변수: blue_input=Serial.read()",
+			"변수: Serial_input", 
+			"",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"char blue_input = 0;\n",
+				"work":"blue_input=Serial.read();\n",
+				"loop":""
+			}
+		],
+
+		[	
+			"R",
+			"blue_input",
+			"blue_input",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"",
+				"work":"blue_input",
+				"loop":""
+			}
+		],
+
+		["B", "블루투스 수신이 가능하면", "bluetoothAvailable", 
+		{ "setup":"","inc":"","def":"","work":"BlueTooth.available()","loop":""}],
+
+		["R", "블루투스 수신 데이터", "bluetoothRead", 
+		{ "setup":"","inc":"","def":"","work":"BlueTooth.read()","loop":""}],
+
+		["w", "블루투스 송신 데이터 %s", "bluetoothWrite", "hello",
+		{"setup":"","inc":"","def":"","work":"BlueTooth.write({0});\n","loop":""}],
+
+		["w", "블루투스 print %s", "bluetoothPrint", "hello",
+		{"setup":"","inc":"","def":"","work":"BlueTooth.print({0});\n","loop":""}],
+		
+		["w", "블루투스 정수 print %s", "bluetoothPrint_int", "hello",
+		{"setup":"","inc":"","def":"","work":"BlueTooth.print((int){0});\n","loop":""}],			
+		
+		["B", "serial available bytes", "serialAvailable",
+		{"setup":"Serial.begin(9600);\n","inc":"","def":"","work":"Serial.available()","loop":""}],
+		
+		["w", "시리얼 송신 데이터 %s", "SerialWrite", "hello",
+		{"setup":"Serial.begin(9600);\n","inc":"","def":"","work":"Serial.write({0});\n","loop":""}],			
+		
+		["R", "시리얼 수신 데이터", "SerialRead",
+		{"setup":"Serial.begin(9600);\n","inc":"","def":"","work":"Serial.read()","loop":""}],
+	
+		[
+			"w", 
+			" %n = parseInt",
+			"parseInt",
+			"0",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"",
+				"work":"{0} = bluetooth.parseInt();\n",
+				"loop":""
+			}
+		],
+		[
+			"w",
+			"DHT No %n Pin %d.digitalport Version %d.DHT",
+			"DHT sensor begin",
+			"1",
+			4,
+			"DHT11",
+			{
+				"setup": "",
+				"inc": "#include \"DHT.h\"\n",
+				"def": "DHT dht_{0}({1},{2});\n",
+				"work": "",
+				"loop": ""
+			}
+		],
+		[
+			"r",
+			"DHT No %n Temperature",
+			"DHT sensor get Temperature",
+			"1",
+			{
+				"setup": "",
+				"inc": "",
+				"def": "",
+				"work": "dht_{0}.readTemperature()",
+				"loop": ""
+			}
+		],
+		[
+			"r",
+			"DHT No %n Humidity",
+			"DHT sensor get Humidity",
+			"1",
+			{
+				"setup": "",
+				"inc": "",
+				"def": "",
+				"work": "dht_{0}.readHumidity()",
+				"loop": ""
+			}
+		],
+		[
+			"r",
+			"DHT No %n Temperature int",
+			"DHT sensor get Temperature int",
+			"1",
+			{
+				"setup": "",
+				"inc": "",
+				"def": "",
+				"work": "int(dht_{0}.readTemperature())",
+				"loop": ""
+			}
+		],
+		[
+			"r",
+			"DHT No %n Humidity int",
+			"DHT sensor get Humidity int",
+			"1",
+			{
+				"setup": "",
+				"inc": "",
+				"def": "",
+				"work": "int(dht_{0}.readHumidity())",
+				"loop": ""
+			}
+		]
+	
+	],
+	"menus": {
+		"portsel":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,"A0","A1","A2","A3","A4","A5"],
+		"digitalport":[0,1,2,3,4,5,6,7,8,9,10,11,12,13],
+		"DHT":["DHT11","DHT21","DHT22"],
+		"pwmvalue":["0","50","100","150","255"],
+		"switch":["ON","OFF"],
+		"indicator":["show cursor","hide cursor","show blink","hide blink"],
+		"lines":[2,4],
+		"cols":[16,20],
+		"line":[1,2,3,4],
+		"col":[1,2,4,8,12,16,20],
+		"lcdaddr":["0x27","0x30","0x38"]
+	},
+	"values":{
+        "A0":14,
+        "A1":15,
+        "A2":16,
+        "A3":17,
+        "A4":18,
+        "A5":19,	
+		"ON":1,
+		"OFF":0,
+		"show cursor":1,
+		"hide cursor":2,
+		"show blink":3,
+		"hide blink":4,
+		"DHT11": 11,
+		"DHT21": 21,
+		"DHT22": 22
+	},
+	"translators":{
+		"ko":{
+			"ON":"켬",
+			"OFF":"끔",
+			"show cursor":"커서 보이기",
+			"hide cursor":"커서 숨기기",
+			"show blink":"사각형 보이기",
+			"hide blink":"사각형 숨기기",
+			"Set: LCD at %d.lcdaddr has %d.lines lines and %d.cols characters per line":"LCD 설정 - 주소: %d.lcdaddr 행: %d.lines 행당 열: %d.cols",
+			"LCD at %d.lcdaddr Line %d.line Col %d.col Show %s ":"LCD 표시 - 주소: %d.lcdaddr 행: %d.line 열: %d.col 화면 표시: %s",
+			"Clear LCD at %d.lcdaddr and Line %d.line Col %d.col Show %s ":"LCD 지우기 - 주소: %d.lcdaddr 행: %d.line 열: %d.col 화면 표시: %s",
+			"Turn %d.switch the backlight of LCD at %d.lcdaddr":"LCD 배경 조명: %d.switch 주소: %d.lcdaddr",
+			"Clear LCD at %d.lcdaddr":"LCD 지우기 - 주소: %d.lcdaddr",
+			"LCD at %d.lcdaddr %d.indicator":"LCD 주소: %d.lcdaddr 표시기: %d.indicator",
+			"read dust sensor ledPower %d.portsel measure %d.portsel":"먼지센서 측정 - 3번 핀: %d.portsel 5번 핀: %d.portsel",
+			"set pwm pin %d.portsel output %d.pwmvalue / pin %d.portsel output %d.pwmvalue / pin %d.portsel output %d.pwmvalue":"아날로그 출력 - 핀: %d.portsel 값: %d.pwmvalue / 핀: %d.portsel 값: %d.pwmvalue / 핀: %d.portsel 값: %d.pwmvalue",
+			"DHT No %n Pin %d.digitalport Version %d.DHT":"온습도 센서 설정 - 센서 번호: %n 핀: %d.digitalport 종류: %d.DHT",
+			"DHT No %n Temperature":"온도 - 센서 번호: %n",
+			"DHT No %n Humidity":"습도 - 센서 번호: %n",
+			"DHT No %n Temperature int":"온도(정수형) - 센서 번호: %n",
+			"DHT No %n Humidity int":"습도(정수형) - 센서 번호: %n"
+		}		
+	}
+}
